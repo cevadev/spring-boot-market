@@ -40,7 +40,9 @@ public class CompraRepository implements PurchaseRepository {
         //2. Debemos garantizar que toda la información se va a guardar en cascada
         //2.1 Para guardarse en cascada debemos aseguraros de que compra conoce los productos y los
         //    producto saben a que compra pertenecen
-        //2.2 A cada producto que recorremos con el foreach le asignamos la compra
+        //2.2 A cada producto que recorremos con el foreach le asignamos la compra con la finalidad de que
+        //compras ya conoce sus productos ahora le decimos a productos a que compra pertenecen
+        compra.getProductos().forEach(producto -> producto.setCompra(compra));
         return mapper.toPurchase(compraCrudRepository.save(compra));
     }
 }
