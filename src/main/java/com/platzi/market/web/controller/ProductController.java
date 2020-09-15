@@ -2,6 +2,10 @@ package com.platzi.market.web.controller;
 
 import com.platzi.market.domain.Product;
 import com.platzi.market.domain.service.ProductService;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,12 +23,20 @@ public class ProductController {
     /*En lugar de que getAll() responda con una lista de prodcutos haremos que el metodo responsa con la clase
     * ResponseEntity*/
     @GetMapping("/all")
+    @ApiOperation("Get all supermarket products")
+    @ApiResponse(code = 200,  message = "Ok")
     public ResponseEntity<List<Product>> getAll(){
         return new ResponseEntity<>(productService.getAll(), HttpStatus.OK);
     }
 
+    //@ApiParam -> nos permite indicar al usuario el parametro que debe ingresar e incluir un ejemplo
     @GetMapping("/{id}")
-    public ResponseEntity<Product> getProduct(@PathVariable("id") int productId){
+    @ApiOperation("Search a product with an Id")
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "Ok"),
+            @ApiResponse(code = 404, message = "Product not found")
+    })
+    public ResponseEntity<Product> getProduct(@ApiParam(value = "The product id", required = true, example = "7") @PathVariable("id") int productId){
         /*¿Cuándo no se ejecuta el map() -> cuando dentro del Optional<> de getProducto() no existe o no hay ningun producto
         * es decir el producto no existe
         * orElse() -> se ejecuta cuando el map() no ocurre
