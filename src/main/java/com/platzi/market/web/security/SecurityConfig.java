@@ -1,6 +1,7 @@
 package com.platzi.market.web.security;
 
 import com.platzi.market.domain.service.PlatziUserDetailsService;
+import com.platzi.market.web.security.filter.JwtFilterRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -9,6 +10,8 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @EnableWebSecurity
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
@@ -16,6 +19,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     //Inyectamos nuestro servicio para configurar el user y password
     @Autowired
     PlatziUserDetailsService platziUserDetailsService;
+
+    @Autowired
+    JwtFilterRequest jwtFilterRequest;
 
     /*con este metodo indicamos cual es el user y password valido segun lo especificado en PlatziUserDetailsService.java*/
     @Override
@@ -35,7 +41,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         //lo que vamos a permitr sera el servicio authenticate, es decir todas las peticiones sin importar lo que haya antes y que terminen en authenticate las debe permitir
         http.csrf().disable().authorizeRequests().antMatchers("/**/authenticate").permitAll()
                 //ahora indicamos que el resto de peticiones si requieren autenticacion
-                .anyRequest().authenticated();//ahora spring hara que las peticiones que terminen en autenticate las va a permitir todas las demas necesitaran autenticacion
+                //ahora spring hara que las peticiones que terminen en autenticate las va a permitir todas las demas necesitaran autenticacion
+                .anyRequest().authenticated().and().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+        http.addFilterBefore(jwtFilterRequest, UsernamePasswordAuthenticationFilter.class);
     }
 
     //permitimos que sea spring que siga controlando la autenticacion
